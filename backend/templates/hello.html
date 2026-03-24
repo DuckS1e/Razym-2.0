@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация - Мониторинг активности</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <header>
+        <h1>Регистрация нового пользователя</h1>
+    </header>
+    
+    <nav>
+        <a href="/home/">На главную</a>
+    </nav>
+
+    <div class="container">
+        <h2>Создайте аккаунт</h2>
+        <form id="registration-form" method="post" action="/api/register">
+            <div class="form-group">
+                <label for="username">Имя пользователя:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Электронная почта:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm-password">Подтвердите пароль:</label>
+                <input type="password" id="confirm-password" name="confirm-password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="department">Отдел:</label>
+                <select id="department" name="department" required>
+                    <option value="">Выберите отдел</option>
+                    <option value="it">IT-отдел</option>
+                    <option value="sales">Продажи</option>
+                    <option value="hr">HR</option>
+                    <option value="finance">Финансы</option>
+                    <option value="marketing">Маркетинг</option>
+                </select>
+            </div>
+            
+            <div id="form-feedback" class="form-feedback" aria-live="polite" style="display:none;"></div>
+            
+            <button id="submit-btn" type="submit">Зарегистрироваться</button>
+        </form>
+        
+        <p>Уже есть аккаунт? <a href="/login/">Войдите здесь</a></p>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Система мониторинга активности сотрудников. Все права защищены.</p>
+    </footer>
+
+    <script src="../scrypt.js"></script>
+    <script>
+    (function() {
+        const form = document.getElementById('registration-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const feedback = document.getElementById('form-feedback');
+
+        function showFeedback(message, ok) {
+            if (!feedback) return;
+            feedback.style.display = 'block';
+            feedback.textContent = message;
+            feedback.style.color = ok ? '#0a7d00' : '#b00020';
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const department = document.getElementById('department').value;
+
+            if (password !== confirmPassword) {
+                showFeedback('Пароли не совпадают.', false);
+                return;
+            }
+            if (!department) {
+                showFeedback('Пожалуйста, выберите отдел.', false);
+                return;
+            }
+
+            submitBtn.disabled = true;
+            showFeedback('Отправка данных...', true);
+
+            try {
+                const resp = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password,
+                        department: department
+                    })
+                });
+
+                const data = await resp.json().catch(() => ({}));
+                if (!resp.ok) {
+                    const msg = data.message || 'Ошибка регистрации. Попробуйте ещё раз.';
+                    throw new Error(msg);
+                }
+
+                showFeedback('Регистрация прошла успешно!', true);
+                setTimeout(() => {
+                    window.location.href = '/login/';
+                }, 800);
+            } catch (err) {
+                showFeedback(err.message || 'Не удалось выполнить регистрацию.', false);
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

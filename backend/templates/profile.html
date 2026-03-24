@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль - Мониторинг активности</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="icon" href="data:,">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Система мониторинга активности сотрудников</h1>
+            <div class="profile-icon" onclick="location.href='/profile/'">
+                <div class="avatar">АП</div>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <a href="/home/">Главная</a>
+        <a href="/leaderboard/">Рейтинг</a>
+        <a href="/public/">Организаторы</a>
+    </nav>
+
+    <div class="container">
+        <h2>Мой профиль</h2>
+
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <div class="large-avatar">АП</div>
+            </div>
+            <div class="profile-info">
+                <h3>Александр Петров</h3>
+                <p><strong>Отдел:</strong> IT-отдел</p>
+                <p><strong>Должность:</strong> Ведущий разработчик</p>
+            </div>
+        </div>
+
+        <div id="profile">
+            <p><strong>Текущий рейтинг:</strong> <span id="current-rating">985</span></p>
+            <p><strong>Место в общем зачете:</strong> <span id="rank-position">1</span></p>
+            <p><strong>Прогноз попадания в кадровый резерв:</strong> <span id="reserve-projection">Высокий</span></p>
+            <p><strong>Количество мероприятий:</strong> <span id="events-count">12</span></p>
+            <p><strong>Дата последнего мероприятия:</strong> 10 апреля 2026</p>
+        </div>
+
+        <section id="my-events">
+            <h3>Мои мероприятия</h3>
+             <table>
+                <thead>
+                     <tr>
+                        <th>Название</th>
+                        <th>Дата</th>
+                        <th>Организатор</th>
+                        <th>Баллы</th>
+                     </tr>
+                </thead>
+                <tbody>
+                     <tr>
+                        <td>Хакатон по инновациям</td>
+                        <td>22 марта 2026</td>
+                        <td>IT-отдел</td>
+                        <td>100</td>
+                     </tr>
+                     <tr>
+                        <td>Технический семинар</td>
+                        <td>15 марта 2026</td>
+                        <td>IT-отдел</td>
+                        <td>75</td>
+                     </tr>
+                     <tr>
+                        <td>Корпоративный тренинг</td>
+                        <td>5 марта 2026</td>
+                        <td>Отдел развития</td>
+                        <td>50</td>
+                     </tr>
+                </tbody>
+             </table>
+        </section>
+    </div>
+
+    <section id="achievements">
+        <h3>Портфолио достижений</h3>
+        <div class="achievements-grid">
+            <div class="achievement-item">
+                <div class="achievement-icon">🏆</div>
+                <h4>Лучший участник</h4>
+                <p>Хакатон по инновациям 2025</p>
+            </div>
+            <div class="achievement-item">
+                <div class="achievement-icon">🏅</div>
+                <h4>Эксперт</h4>
+                <p>Технический семинар 2025</p>
+            </div>
+            <div class="achievement-item">
+                <div class="achievement-icon">🎖️</div>
+                <h4>Лидер</h4>
+                <p>Тренинг по лидерству 2025</p>
+            </div>
+            <div class="achievement-item">
+                <div class="achievement-icon">🌟</div>
+                <h4>Активный участник</h4>
+                <p>10+ мероприятий</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="activity-chart-section">
+        <h3>График активности</h3>
+        <div class="chart-container">
+            <canvas id="activity-chart" width="400" height="150"></canvas>
+        </div>
+    </section>
+
+    <section id="admin-panel" style="display: none;">
+        <h2>Админ-панель</h2>
+        <div class="admin-controls">
+            <button onclick="createEvent()">Создать мероприятие</button>
+            <button onclick="manageUsers()">Управление пользователями</button>
+            <button onclick="viewReports()">Просмотр отчетов</button>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Система мониторинга активности сотрудников. Все права защищены.</p>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../static/scrypt.js"></script>
+</body>
+</html>
