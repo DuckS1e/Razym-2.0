@@ -52,7 +52,8 @@
                 <div class="form-row"><input type="datetime-local" name="date" required></div>
                 <div class="form-row"><textarea name="description" placeholder="Описание"></textarea></div>
                 <div class="form-row"><input type="number" name="points" placeholder="Баллы за участие"></div>
-                <div class="form-row"><select name="category"><option value="">Категория</option><option>IT</option><option>Лидерство</option></select></div>
+                <div class="form-row"><input type="text" name="location" placeholder="Место проведения"></div>
+                <div class="form-row"><select name="category"><option value="">Категория</option><option>IT</option><option>Лидерство</option><option>Профразвитие</option></select></div>
                 <button type="submit">Создать</button>
             </form>
         </div>
@@ -117,6 +118,7 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
+            data.status = 'published';  // обязательно для отображения на главной
             const token = localStorage.getItem('access_token');
             const response = await fetch('/api/events/', {
                 method: 'POST',

@@ -57,7 +57,7 @@
                     <tr data-user-id="{{ entry.user.id }}" data-points="{{ entry.total_points }}">
                         <td>{{ entry.rank }}</td>
                         <td><strong>{{ entry.user.full_name }}</strong></td>
-                        <td>{{ entry.user.department|default:"—" }}</td>
+                        <td>{{ entry.user.city|default:"—" }}</td>
                         <td>{{ entry.total_points }}</td>
                         <td class="forecast-{{ entry.forecast_class|default:'low' }}">
                             {{ entry.forecast_text|default:"Низкий" }}

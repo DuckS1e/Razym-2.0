@@ -139,7 +139,6 @@
             return cookieValue;
         }
 
-        // Фильтрация организаторов по рейтингу
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const filter = btn.getAttribute('data-rating');
@@ -158,7 +157,6 @@
             });
         });
 
-        // Отправка отзыва
         document.querySelectorAll('.add-review-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const organizerId = btn.getAttribute('data-organizer-id');

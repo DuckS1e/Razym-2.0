@@ -38,9 +38,9 @@
             <div class="large-avatar">{{ user_profile.full_name|slice:":2" }}</div>
             <div class="profile-info">
                 <h3>{{ user_profile.full_name }}</h3>
-                <p><strong>Отдел:</strong> {{ user_profile.department|default:"—" }}</p>
+                <p><strong>Отдел:</strong> {{ user_profile.city|default:"—" }}</p>
                 <p><strong>Должность:</strong> {{ user_profile.position|default:"—" }}</p>
-                <p><strong>Роль:</strong> {{ user_profile.get_role_display }}</p>
+                <p><strong>Роль:</strong> {{ user_profile.role }}</p>
             </div>
         </div>
 

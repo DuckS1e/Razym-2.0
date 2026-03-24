@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import Users, Events, Leaderboard
+from .models import Users, Events, Leaderboard, EventParticipants, Feedback, Settings
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework import serializers
 from django.contrib.auth import authenticate
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
@@ -19,6 +19,23 @@ class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Leaderboard
         fields = '__all__'
+
+class EventParticipantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventParticipants
+        fields = ['id', 'user', 'event', 'status', 'points_earned', 'registered_at']
+        read_only_fields = ['user', 'registered_at']
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = ['id', 'event', 'participant', 'organizer', 'rating', 'comment', 'created_at']
+        read_only_fields = ['participant', 'created_at']
+
+class SettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Settings
+        fields = ['key', 'value']
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'

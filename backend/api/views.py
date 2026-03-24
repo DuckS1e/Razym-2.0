@@ -1,40 +1,28 @@
-from rest_framework import viewsets, permissions
-from .models import Users, Events, Leaderboard, EventParticipants, Feedback
-from .serializers import UserSerializer, EventSerializer, LeaderboardSerializer
-from django.shortcuts import render
-from django.utils import timezone
-from django.db.models import Count, Sum
-from django.contrib.auth.decorators import login_required
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
-from rest_framework import status
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from django.db.models import Count, Avg
 from django.contrib.auth.hashers import make_password
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import CustomTokenObtainPairSerializer
-from django.contrib.auth.hashers import make_password
+from .models import Users, Events, EventParticipants, Feedback, Leaderboard, Settings, OrganizerProfiles, ParticipantProfiles
+from .serializers import (
+    UserSerializer, EventSerializer, LeaderboardSerializer,
+    EventParticipantSerializer, FeedbackSerializer, SettingsSerializer,
+    CustomTokenObtainPairSerializer
+)
+from .permissions import IsAdminOrModerator
+
 def home_page(request):
-    """Главная страница: список предстоящих мероприятий"""
-    from django.utils import timezone
-    upcoming_events = Events.objects.filter(
-        status='published',
-        date__gte=timezone.now()
-    ).order_by('date')
-    past_events = Events.objects.filter(
-        status='published',
-        date__lt=timezone.now()
-    ).order_by('-date')[:5]
-    return render(request, 'home.html', {
-        'upcoming_events': upcoming_events,
-        'past_events': past_events,
-    })
+    upcoming_events = Events.objects.filter(status='published', date__gte=timezone.now()).order_by('date')
+    past_events = Events.objects.filter(status='published', date__lt=timezone.now()).order_by('-date')[:5]
+    return render(request, 'home.html', {'upcoming_events': upcoming_events, 'past_events': past_events})
 
 def leaderboard_page(request):
-    """Таблица лидеров (топ-100)"""
     top_users = Leaderboard.objects.select_related('user').order_by('rank')[:100]
-    return render(request, 'leaderboard.html', {
-        'leaderboard': top_users,
-    })
+    return render(request, 'leaderboard.html', {'leaderboard': top_users})
 
 def organizers_page(request):
     organizers = Users.objects.filter(role='organizer').annotate(
@@ -43,40 +31,8 @@ def organizers_page(request):
     ).prefetch_related('organizer_profile', 'received_feedback')
     return render(request, 'public.html', {'organizers': organizers})
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def register_user(request):
-    data = request.data
-    email = data.get('email')
-    password = data.get('password')
-    full_name = data.get('full_name', '')
-    department = data.get('department', '')
-    role = data.get('role', 'participant')
-
-    if not email or not password:
-        return Response({'error': 'Email and password required'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Проверка, существует ли пользователь с таким email
-    if Users.objects.filter(email=email).exists():
-        return Response({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
-
-    user = Users(
-        email=email,
-        full_name=full_name,
-        city=department,
-        role=role,
-        password_hash=make_password(password),
-        is_approved=True
-    )
-    user.save()
-
-    from .models import ParticipantProfiles
-    ParticipantProfiles.objects.create(user=user)
-
-    return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
 @login_required
 def profile_page(request):
-    """Профиль текущего пользователя (участника)"""
     user = request.user
     participations = EventParticipants.objects.filter(user=user).select_related('event')
     leaderboard_entry = Leaderboard.objects.filter(user=user).first()
@@ -95,7 +51,6 @@ def profile_page(request):
 
 @login_required
 def admin_panel_page(request):
-    """Панель администратора (только для пользователей с ролью admin или moderator)"""
     if request.user.role not in ['admin', 'moderator']:
         return render(request, '403.html', status=403)
     total_events = Events.objects.count()
@@ -109,20 +64,113 @@ def admin_panel_page(request):
         'pending_organizers': pending_organizers,
     })
 
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def register_user(request):
+    data = request.data
+    email = data.get('email')
+    password = data.get('password')
+    full_name = data.get('full_name', '')
+    department = data.get('department', '')
+    role = data.get('role', 'participant')
+    if not email or not password:
+        return Response({'error': 'Email and password required'}, status=status.HTTP_400_BAD_REQUEST)
+    if Users.objects.filter(email=email).exists():
+        return Response({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
+    user = Users(
+        email=email,
+        full_name=full_name,
+        city=department,
+        role=role,
+        password_hash=make_password(password),
+        is_approved=True if role != 'organizer' else False
+    )
+    user.save()
+    if role == 'participant':
+        ParticipantProfiles.objects.create(user=user)
+    elif role == 'organizer':
+        OrganizerProfiles.objects.create(user=user)
+    return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def register_for_event(request):
+    event_id = request.data.get('event')
+    if not event_id:
+        return Response({'detail': 'event id required'}, status=status.HTTP_400_BAD_REQUEST)
+    event = get_object_or_404(Events, id=event_id)
+    if EventParticipants.objects.filter(user=request.user, event=event).exists():
+        return Response({'detail': 'Already registered'}, status=status.HTTP_400_BAD_REQUEST)
+    EventParticipants.objects.create(
+        user=request.user,
+        event=event,
+        status='registered',
+        registered_at=timezone.now()
+    )
+    return Response({'detail': 'Registered successfully'}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def submit_feedback(request):
+    organizer_id = request.data.get('organizer_id')
+    rating = request.data.get('rating')
+    comment = request.data.get('comment')
+    if not organizer_id or not rating:
+        return Response({'detail': 'organizer_id and rating required'}, status=status.HTTP_400_BAD_REQUEST)
+    organizer = get_object_or_404(Users, id=organizer_id, role='organizer')
+    Feedback.objects.create(
+        participant=request.user,
+        organizer=organizer,
+        rating=rating,
+        comment=comment,
+        created_at=timezone.now()
+    )
+    avg_rating = Feedback.objects.filter(organizer=organizer).aggregate(avg=Avg('rating'))['avg']
+    if avg_rating:
+        organizer.organizer_profile.trust_rating = avg_rating
+        organizer.organizer_profile.save()
+    return Response({'detail': 'Feedback submitted'}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def update_weights(request):
+    if request.user.role not in ['admin', 'moderator']:
+        return Response({'detail': 'Not allowed'}, status=status.HTTP_403_FORBIDDEN)
+    for key, value in request.data.items():
+        if key.startswith('weight_'):
+            Settings.objects.update_or_create(key=key, defaults={'value': value})
+    return Response({'detail': 'Weights saved'})
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def approve_organizer(request, user_id):
+    if request.user.role not in ['admin', 'moderator']:
+        return Response({'detail': 'Not allowed'}, status=status.HTTP_403_FORBIDDEN)
+    user = get_object_or_404(Users, id=user_id, role='organizer')
+    user.is_approved = True
+    user.save()
+    return Response({'detail': 'Approved'})
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def reject_organizer(request, user_id):
+    if request.user.role not in ['admin', 'moderator']:
+        return Response({'detail': 'Not allowed'}, status=status.HTTP_403_FORBIDDEN)
+    user = get_object_or_404(Users, id=user_id, role='organizer')
+    user.delete()
+    return Response({'detail': 'Rejected'})
+
 class UserViewSet(viewsets.ModelViewSet):
-    """API для работы с пользователями"""
     queryset = Users.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]  
+    permission_classes = [permissions.IsAuthenticated]
 
 class EventViewSet(viewsets.ModelViewSet):
-    """API для мероприятий"""
     queryset = Events.objects.all()
     serializer_class = EventSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class LeaderboardViewSet(viewsets.ReadOnlyModelViewSet):
-    """Только чтение для лидерборда"""
     queryset = Leaderboard.objects.all().order_by('rank')[:100]
     serializer_class = LeaderboardSerializer
     permission_classes = [permissions.AllowAny]

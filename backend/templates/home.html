@@ -181,7 +181,6 @@
             <button id="search-btn">Найти</button>
         </div>
 
-        <!-- Облако тегов направлений -->
         <div class="tags-cloud">
             <h3>Фильтр по направлениям</h3>
             <div class="tags-container" id="tags-container">
@@ -198,15 +197,13 @@
         <section id="events">
             <h3>Доступные мероприятия</h3>
             {% for event in upcoming_events %}
-            <div class="event-card" data-event-id="{{ event.id }}" data-category="{{ event.category_slug|default:'other' }}">
+            <div class="event-card" data-event-id="{{ event.id }}" data-category="{{ event.category|default:'other'|slugify }}">
                 <h4>{{ event.title }}</h4>
                 <p><strong>Дата:</strong> {{ event.date|date:"d.m.Y H:i" }}</p>
                 <p><strong>Место:</strong> {{ event.location|default:"Не указано" }}</p>
                 <p><strong>Организатор:</strong> {{ event.organizer.full_name }}</p>
-                <p><strong>Баллы:</strong>
-                    {% if event.prizes.first.points %}{{ event.prizes.first.points }}{% else %}—{% endif %}
-                </p>
-                <span class="event-category-badge">{{ event.category_name|default:"Разное" }}</span>
+                <p><strong>Баллы:</strong> {{ event.points|default:"—" }}</p>
+                <span class="event-category-badge">{{ event.category_name }}</span>
                 <button class="register-btn" onclick="openEventModal({{ event.id }})">Зарегистрироваться</button>
             </div>
             {% empty %}
@@ -229,7 +226,6 @@
         </section>
     </div>
 
-    <!-- Модальное окно -->
     <div id="eventModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -285,21 +281,19 @@
                         <p><strong>Дата и время:</strong> ${new Date(event.date).toLocaleString()}</p>
                         <p><strong>Место:</strong> ${event.location || 'Не указано'}</p>
                         <p><strong>Описание:</strong> ${event.description || '—'}</p>
-                        ${event.prizes && event.prizes.length ? `<p><strong>Призы:</strong> ${event.prizes.map(p => p.prize_type + (p.points ? ' ('+p.points+' баллов)' : '')).join(', ')}</p>` : ''}
-                        <span class="event-points">Баллы: ${event.prizes && event.prizes[0] ? event.prizes[0].points : '—'}</span>
+                        <p><strong>Баллы:</strong> ${event.points || '—'}</p>
+                        <span class="event-points">Баллы: ${event.points || '—'}</span>
                     </div>
                     <div class="organizer-info">
                         <h4>Об организаторе</h4>
                         <p><strong>${event.organizer_name || event.organizer}</strong></p>
-                        <p>${event.organizer_description || 'Организатор не указал информацию'}</p>
                         <div class="organizer-stats">
                             <div class="organizer-stat">
-                                <div class="organizer-stat-value">${event.organizer_rating || '—'}</div>
+                                <div class="organizer-stat-value">—</div>
                                 <div class="organizer-stat-label">Рейтинг</div>
-                                <div class="rating-stars">${event.organizer_rating ? '★'.repeat(Math.floor(event.organizer_rating)) : '☆'}</div>
                             </div>
                             <div class="organizer-stat">
-                                <div class="organizer-stat-value">${event.organizer_events_count || '—'}</div>
+                                <div class="organizer-stat-value">—</div>
                                 <div class="organizer-stat-label">Мероприятий</div>
                             </div>
                         </div>
@@ -340,10 +334,7 @@
                         'Authorization': `Bearer ${token}`,
                         'X-CSRFToken': getCookie('csrftoken')
                     },
-                    body: JSON.stringify({
-                        event: currentEventId,
-                        status: 'registered'
-                    })
+                    body: JSON.stringify({ event: currentEventId })
                 });
 
                 if (response.ok) {
