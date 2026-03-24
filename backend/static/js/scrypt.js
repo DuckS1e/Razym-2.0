@@ -1,5 +1,6 @@
 function initActivityChart() {
-    const ctx = document.getElementById('activity-chart').getContext('2d');
+    const ctx = document.getElementById('activity-chart')?.getContext('2d');
+    if (!ctx) return;
 
     const activityData = {
         labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
@@ -19,9 +20,7 @@ function initActivityChart() {
         options: {
             responsive: true,
             plugins: {
-                legend: {
-                    position: 'top',
-                },
+                legend: { position: 'top' },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
@@ -31,12 +30,7 @@ function initActivityChart() {
                 }
             },
             scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 5
-                    }
-                }
+                y: { beginAtZero: true, ticks: { stepSize: 5 } }
             }
         }
     };
@@ -54,7 +48,6 @@ function setupEventForm() {
     if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            
             const formData = new FormData(form);
             const eventData = {
                 name: formData.get('Название мероприятия'),
@@ -64,10 +57,8 @@ function setupEventForm() {
                 points: parseInt(formData.get('Количество баллов')),
                 category: formData.get('Выберите категорию')
             };
-
             console.log('Новое мероприятие:', eventData);
             alert('Мероприятие успешно создано!');
-
             form.reset();
         });
     }
@@ -109,7 +100,6 @@ function setupDownloadButtons() {
                 events: parseInt(row.cells[3].textContent),
                 avgScore: parseFloat(row.cells[4].textContent)
             };
-            
             downloadReport(employeeName, employeeData);
         });
     });
@@ -120,15 +110,12 @@ function setupWeightsForm() {
     if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            
             const weights = {};
             const inputs = form.querySelectorAll('input[type="number"]');
-            
             inputs.forEach(input => {
                 const label = input.previousElementSibling.textContent.replace(':', '').trim();
                 weights[label] = parseInt(input.value);
             });
-
             console.log('Настройки весов:', weights);
             alert('Настройки весов успешно сохранены!');
         });
@@ -139,12 +126,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('activity-chart')) {
         initActivityChart();
     }
-
     setupEventForm();
-
     setupModerationButtons();
-
     setupDownloadButtons();
-
     setupWeightsForm();
 });

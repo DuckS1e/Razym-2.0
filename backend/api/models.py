@@ -40,7 +40,7 @@ class EventCategoryLinks(models.Model):
 
 class EventParticipants(models.Model):
     user = models.ForeignKey('Users', models.DO_NOTHING)
-    event = models.ForeignKey('Events', models.DO_NOTHING)
+    event = models.ForeignKey('Events', on_delete=models.CASCADE, related_name='participants')
     status = models.CharField(max_length=20)
     confirmation_method = models.CharField(max_length=10, blank=True, null=True)
     confirmed_by = models.ForeignKey('Users', models.DO_NOTHING, db_column='confirmed_by', related_name='eventparticipants_confirmed_by_set', blank=True, null=True)
@@ -75,7 +75,7 @@ class EventTags(models.Model):
 
 
 class Events(models.Model):
-    organizer = models.ForeignKey('Users', models.CASCADE, related_name='organized_events')
+    organizer = models.ForeignKey('Users', on_delete=models.CASCADE, related_name='organized_events')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     date = models.DateTimeField()

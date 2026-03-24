@@ -5,6 +5,14 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.db.models import Count, Sum
 from django.contrib.auth.decorators import login_required
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
+from django.contrib.auth.hashers import make_password
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
+from django.contrib.auth.hashers import make_password
 def home_page(request):
     """Главная страница: список предстоящих мероприятий"""
     from django.utils import timezone
@@ -29,15 +37,43 @@ def leaderboard_page(request):
     })
 
 def organizers_page(request):
-    """Страница организаторов (все пользователи с ролью 'organizer')"""
     organizers = Users.objects.filter(role='organizer').annotate(
         events_count=Count('organized_events'),
-        total_participants=Sum('organized_events__participants')
-    )
-    return render(request, 'public.html', {
-        'organizers': organizers,
-    })
+        total_participants=Count('organized_events__participants', distinct=True)
+    ).prefetch_related('organizer_profile', 'received_feedback')
+    return render(request, 'public.html', {'organizers': organizers})
 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register_user(request):
+    data = request.data
+    email = data.get('email')
+    password = data.get('password')
+    full_name = data.get('full_name', '')
+    department = data.get('department', '')
+    role = data.get('role', 'participant')
+
+    if not email or not password:
+        return Response({'error': 'Email and password required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Проверка, существует ли пользователь с таким email
+    if Users.objects.filter(email=email).exists():
+        return Response({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = Users(
+        email=email,
+        full_name=full_name,
+        city=department,
+        role=role,
+        password_hash=make_password(password),
+        is_approved=True
+    )
+    user.save()
+
+    from .models import ParticipantProfiles
+    ParticipantProfiles.objects.create(user=user)
+
+    return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
 @login_required
 def profile_page(request):
     """Профиль текущего пользователя (участника)"""
@@ -90,3 +126,6 @@ class LeaderboardViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Leaderboard.objects.all().order_by('rank')[:100]
     serializer_class = LeaderboardSerializer
     permission_classes = [permissions.AllowAny]
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
