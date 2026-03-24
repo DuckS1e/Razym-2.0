@@ -75,7 +75,7 @@ class EventTags(models.Model):
 
 
 class Events(models.Model):
-    organizer = models.ForeignKey('Users', models.DO_NOTHING)
+    organizer = models.ForeignKey('Users', models.CASCADE, related_name='organized_events')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     date = models.DateTimeField()

@@ -1,19 +1,28 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Организаторы - Мониторинг активности</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="icon" href="data:,">
+    <style>
+        .organizer-card { margin-bottom: 30px; }
+        .reviews-section { margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+        .review-item { background: #f7fafc; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+        .prizes-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+        .prize-tag { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; }
+        .add-review-btn { margin-top: 15px; background: white; border: 2px solid #667eea; color: #667eea; padding: 8px 20px; border-radius: 30px; cursor: pointer; transition: 0.3s; }
+        .add-review-btn:hover { background: #667eea; color: white; }
+    </style>
 </head>
 <body>
     <header>
         <div class="header-content">
             <h1>Система мониторинга активности сотрудников</h1>
             <div class="profile-icon" onclick="location.href='{% url 'profile' %}'">
-                <div class="avatar">АП</div>
+                <div class="avatar">{{ request.user.full_name|slice:":2"|default:"АП" }}</div>
             </div>
         </div>
     </header>
@@ -21,7 +30,7 @@
     <nav>
         <a href="{% url 'home' %}">Главная</a>
         <a href="{% url 'leaderboard' %}">Рейтинг</a>
-        <a href="{% url 'public' %}">Организаторы</a>
+        <a href="{% url 'organizers' %}">Организаторы</a>
     </nav>
 
     <div class="container">
@@ -29,122 +38,65 @@
         <p>Оценка качества проведения мероприятий и обратная связь от участников</p>
 
         <div class="filter-section">
-            <button class="filter-btn active" onclick="filterOrganizers('all')">Все организаторы</button>
-            <button class="filter-btn" onclick="filterOrganizers('high')">Высокий рейтинг (4.5+)</button>
-            <button class="filter-btn" onclick="filterOrganizers('medium')">Средний рейтинг (3.5-4.4)</button>
-            <button class="filter-btn" onclick="filterOrganizers('low')">Низкий рейтинг (3.4-)</button>
+            <button class="filter-btn active" data-rating="all">Все организаторы</button>
+            <button class="filter-btn" data-rating="high">Высокий рейтинг (4.5+)</button>
+            <button class="filter-btn" data-rating="medium">Средний (3.5-4.4)</button>
+            <button class="filter-btn" data-rating="low">Низкий (3.4-)</button>
         </div>
 
         <div id="organizers-list">
-            <div class="organizer-card" data-rating="4.8">
+            {% for org in organizers %}
+            <div class="organizer-card" data-rating="{{ org.organizer_profile.trust_rating|default:0 }}">
                 <div class="organizer-header">
-                    <div class="organizer-avatar">ИТ</div>
+                    <div class="organizer-avatar">{{ org.full_name|slice:":2" }}</div>
                     <div class="organizer-info">
-                        <h3>IT-отдел</h3>
-                        <div class="organizer-dept">Руководитель: Алексей Смирнов</div>
+                        <h3>{{ org.full_name }}</h3>
                         <div class="trust-rating">
-                            <span class="trust-score">Рейтинг доверия: 4.8</span>
-                            <span class="trust-stars">★★★★★</span>
+                            <span class="trust-score">Рейтинг доверия: {{ org.organizer_profile.trust_rating|default:"Нет оценок" }}</span>
+                            <span class="trust-stars">{% if org.organizer_profile.trust_rating %}{{ org.organizer_profile.trust_rating|floatformat:1 }}{% endif %}</span>
                         </div>
                     </div>
                 </div>
-
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <div class="stat-value">15</div>
-                        <div class="stat-label">Проведено мероприятий</div>
+                        <div class="stat-value">{{ org.organizer_profile.events_count }}</div>
+                        <div class="stat-label">Мероприятий</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">342</div>
-                        <div class="stat-label">Всего участников</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">98%</div>
-                        <div class="stat-label">Положительных отзывов</div>
+                        <div class="stat-value">{{ org.organizer_profile.total_participants|default:0 }}</div>
+                        <div class="stat-label">Участников</div>
                     </div>
                 </div>
-
                 <div class="reviews-section">
-                    <div class="reviews-title">Отзывы участников (2)</div>
+                    <div class="reviews-title">Отзывы участников</div>
+                    {% for review in org.received_feedback.all|slice:":2" %}
                     <div class="review-item">
                         <div class="review-header">
-                            <span class="review-author">Александр Петров</span>
-                            <span class="review-date">10 апреля 2026</span>
+                            <span class="review-author">{{ review.participant.full_name }}</span>
+                            <span class="review-date">{{ review.created_at|date:"d.m.Y" }}</span>
                         </div>
-                        <div class="review-rating">★★★★★</div>
-                        <div class="review-text">Отличная организация хакатона! Все было четко и профессионально.</div>
+                        <div class="review-rating">★ {{ review.rating }}/5</div>
+                        <div class="review-text">{{ review.comment|truncatechars:100 }}</div>
                     </div>
-                    <div class="review-item">
-                        <div class="review-header">
-                            <span class="review-author">Елена Сидорова</span>
-                            <span class="review-date">25 марта 2026</span>
-                        </div>
-                        <div class="review-rating">★★★★☆</div>
-                        <div class="review-text">Хороший семинар, но хотелось бы больше практических заданий.</div>
-                    </div>
-                    <button class="add-review-btn" onclick="addReview('IT-отдел')">➕ Оставить отзыв</button>
+                    {% empty %}
+                    <p>Пока нет отзывов.</p>
+                    {% endfor %}
+                    <button class="add-review-btn" data-organizer-id="{{ org.id }}">➕ Оставить отзыв</button>
                 </div>
-
                 <div class="prizes-section">
                     <div class="prizes-title">Часто предлагаемые призы</div>
                     <div class="prizes-grid">
-                        <span class="prize-tag">Сертификаты в IT-магазин</span>
-                        <span class="prize-tag">Дополнительные выходные</span>
-                        <span class="prize-tag">Курсы повышения квалификации</span>
+                        {% for prize in org.organizer_profile.common_prizes %}
+                        <span class="prize-tag">{{ prize }}</span>
+                        {% empty %}
+                        <span>—</span>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
-
-            <div class="organizer-card" data-rating="4.9">
-                <div class="organizer-header">
-                    <div class="organizer-avatar">HR</div>
-                    <div class="organizer-info">
-                        <h3>HR-отдел</h3>
-                        <div class="organizer-dept">Руководитель: Мария Иванова</div>
-                        <div class="trust-rating">
-                            <span class="trust-score">Рейтинг доверия: 4.9</span>
-                            <span class="trust-stars">★★★★★</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-value">12</div>
-                        <div class="stat-label">Проведено мероприятий</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">289</div>
-                        <div class="stat-label">Всего участников</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">99%</div>
-                        <div class="stat-label">Положительных отзывов</div>
-                    </div>
-                </div>
-
-                <div class="reviews-section">
-                    <div class="reviews-title">Отзывы участников (1)</div>
-                    <div class="review-item">
-                        <div class="review-header">
-                            <span class="review-author">Ольга Морозова</span>
-                            <span class="review-date">5 апреля 2026</span>
-                        </div>
-                        <div class="review-rating">★★★★★</div>
-                        <div class="review-text">Замечательный тренинг по лидерству!</div>
-                    </div>
-                    <button class="add-review-btn" onclick="addReview('HR-отдел')">➕ Оставить отзыв</button>
-                </div>
-
-                <div class="prizes-section">
-                    <div class="prizes-title">Часто предлагаемые призы</div>
-                    <div class="prizes-grid">
-                        <span class="prize-tag">Путевки в санаторий</span>
-                        <span class="prize-tag">Билеты на мероприятия</span>
-                        <span class="prize-tag">Подарочные карты</span>
-                    </div>
-                </div>
-            </div>
+            {% empty %}
+            <p>Нет организаторов.</p>
+            {% endfor %}
         </div>
     </div>
 
@@ -153,49 +105,72 @@
     </footer>
 
     <script>
-        function filterOrganizers(type) {
-            const cards = document.querySelectorAll('.organizer-card');
-            const buttons = document.querySelectorAll('.filter-btn');
-
-            buttons.forEach(btn => btn.classList.remove('active'));
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
-
-            cards.forEach(card => {
-                const rating = parseFloat(card.getAttribute('data-rating'));
-                let show = false;
-
-                switch(type) {
-                    case 'all': show = true; break;
-                    case 'high': show = rating >= 4.5; break;
-                    case 'medium': show = rating >= 3.5 && rating < 4.5; break;
-                    case 'low': show = rating < 3.5; break;
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
+            }
+            return cookieValue;
+        }
 
-                card.style.display = show ? 'block' : 'none';
+        // Фильтрация организаторов по рейтингу
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.getAttribute('data-rating');
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const cards = document.querySelectorAll('.organizer-card');
+                cards.forEach(card => {
+                    const rating = parseFloat(card.getAttribute('data-rating'));
+                    let show = false;
+                    if (filter === 'all') show = true;
+                    else if (filter === 'high') show = rating >= 4.5;
+                    else if (filter === 'medium') show = rating >= 3.5 && rating < 4.5;
+                    else if (filter === 'low') show = rating < 3.5;
+                    card.style.display = show ? 'block' : 'none';
+                });
             });
-        }
+        });
 
-        function addReview(organizerName) {
-            const reviewText = prompt(`Оставьте отзыв для ${organizerName}:`);
-            if (reviewText && reviewText.trim()) {
-                const rating = prompt('Оцените мероприятие (1-5 звезд):', '5');
-                const stars = parseInt(rating);
-                if (stars >= 1 && stars <= 5) {
-                    alert(`Спасибо за отзыв!\nОценка: ${'★'.repeat(stars)}${'☆'.repeat(5-stars)}\nОтзыв: ${reviewText}`);
-                } else {
-                    alert('Пожалуйста, введите оценку от 1 до 5');
+        document.querySelectorAll('.add-review-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const organizerId = btn.getAttribute('data-organizer-id');
+                const rating = prompt('Оценка от 1 до 5:');
+                if (!rating) return;
+                const comment = prompt('Ваш отзыв:');
+                if (!comment) return;
+                const token = localStorage.getItem('access_token');
+                if (!token) {
+                    alert('Вы не авторизованы. Пожалуйста, войдите.');
+                    window.location.href = '{% url "login" %}';
+                    return;
                 }
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const cards = document.querySelectorAll('.organizer-card');
-            cards.forEach((card, index) => {
-                card.style.animation = `fadeIn 0.5s ease-out ${index * 0.1}s forwards`;
-                card.style.opacity = '0';
-                card.style.animationFillMode = 'forwards';
+                const response = await fetch('/api/feedback/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        organizer_id: organizerId,
+                        rating: parseInt(rating),
+                        comment: comment
+                    })
+                });
+                if (response.ok) {
+                    alert('Спасибо за отзыв!');
+                    location.reload();
+                } else {
+                    alert('Ошибка отправки отзыва');
+                }
             });
         });
     </script>

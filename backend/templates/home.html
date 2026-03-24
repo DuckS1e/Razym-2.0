@@ -1,107 +1,249 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация - Мониторинг активности</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <title>Главная - Мониторинг активности</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="icon" href="data:,">
     <style>
-        .form-group {
-            margin-bottom: 15px;
+        .tags-cloud {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
+        .tag {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #f0f0f0;
+            color: #666;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        button {
+        .tag.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 12px 24px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        .event-category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            margin-top: 8px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .close-btn {
+            background: none;
             border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+        }
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .confirm-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
         }
-        .form-feedback {
-            margin-top: 10px;
-            padding: 10px;
+        .cancel-btn {
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            padding: 10px 20px;
             border-radius: 5px;
+            cursor: pointer;
         }
-        .container {
-            max-width: 500px;
-            margin: 2rem auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
         }
-        footer {
-            margin-top: 2rem;
+        .event-points {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .organizer-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .organizer-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .organizer-stat {
             text-align: center;
+            flex: 1;
         }
-        header h1 {
+        .organizer-stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .rating-stars {
+            color: #ffc107;
+            margin-top: 5px;
+        }
+        .no-results {
             text-align: center;
-            margin: 1rem 0;
+            padding: 40px;
+            color: #999;
+            font-size: 1.1rem;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Регистрация нового пользователя</h1>
+        <div class="header-content">
+            <h1>Система мониторинга активности сотрудников</h1>
+            <div class="profile-icon" onclick="location.href='{% url 'profile' %}'">
+                <div class="avatar">{{ request.user.full_name|slice:":2"|default:"АП" }}</div>
+            </div>
+        </div>
     </header>
 
+    <nav>
+        <a href="{% url 'home' %}">Главная</a>
+        <a href="{% url 'leaderboard' %}">Рейтинг</a>
+        <a href="{% url 'organizers' %}">Организаторы</a>
+    </nav>
+
     <div class="container">
-        <h2>Создайте аккаунт</h2>
-        <form id="registration-form" method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="username">Имя пользователя:</label>
-                <input type="text" id="username" name="username" required>
+        <h2>Главная страница</h2>
+
+        <div class="search-section">
+            <input type="text" id="event-search" placeholder="Поиск мероприятий...">
+            <button id="search-btn">Найти</button>
+        </div>
+
+        <!-- Облако тегов направлений -->
+        <div class="tags-cloud">
+            <h3>Фильтр по направлениям</h3>
+            <div class="tags-container" id="tags-container">
+                <span class="tag active" data-category="all">Все мероприятия</span>
+                <span class="tag" data-category="IT">IT и технологии</span>
+                <span class="tag" data-category="leadership">Лидерство и управление</span>
+                <span class="tag" data-category="professional">Профессиональное развитие</span>
+                <span class="tag" data-category="team">Командообразование</span>
+                <span class="tag" data-category="hr">HR</span>
+                <span class="tag" data-category="security">Кибербезопасность</span>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label for="email">Электронная почта:</label>
-                <input type="email" id="email" name="email" required>
+        <section id="events">
+            <h3>Доступные мероприятия</h3>
+            {% for event in upcoming_events %}
+            <div class="event-card" data-event-id="{{ event.id }}" data-category="{{ event.category_slug|default:'other' }}">
+                <h4>{{ event.title }}</h4>
+                <p><strong>Дата:</strong> {{ event.date|date:"d.m.Y H:i" }}</p>
+                <p><strong>Место:</strong> {{ event.location|default:"Не указано" }}</p>
+                <p><strong>Организатор:</strong> {{ event.organizer.full_name }}</p>
+                <p><strong>Баллы:</strong>
+                    {% if event.prizes.first.points %}{{ event.prizes.first.points }}{% else %}—{% endif %}
+                </p>
+                <span class="event-category-badge">{{ event.category_name|default:"Разное" }}</span>
+                <button class="register-btn" onclick="openEventModal({{ event.id }})">Зарегистрироваться</button>
             </div>
+            {% empty %}
+            <p>Нет предстоящих мероприятий.</p>
+            {% endfor %}
+        </section>
 
-            <div class="form-group">
-                <label for="password">Пароль:</label>
-                <input type="password" id="password" name="password" required>
+        <section id="recent-events">
+            <h3>Последние завершенные мероприятия</h3>
+            {% for event in past_events %}
+            <div class="event-card">
+                <h4>{{ event.title }}</h4>
+                <p><strong>Дата:</strong> {{ event.date|date:"d.m.Y H:i" }}</p>
+                <p><strong>Организатор:</strong> {{ event.organizer.full_name }}</p>
+                <p><strong>Статус:</strong> Завершено</p>
             </div>
+            {% empty %}
+            <p>Нет завершённых мероприятий.</p>
+            {% endfor %}
+        </section>
+    </div>
 
-            <div class="form-group">
-                <label for="confirm-password">Подтвердите пароль:</label>
-                <input type="password" id="confirm-password" name="confirm-password" required>
+    <!-- Модальное окно -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Регистрация на мероприятие</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-
-            <div class="form-group">
-                <label for="department">Отдел:</label>
-                <select id="department" name="department" required>
-                    <option value="">Выберите отдел</option>
-                    <option value="it">IT-отдел</option>
-                    <option value="sales">Продажи</option>
-                    <option value="hr">HR</option>
-                    <option value="finance">Финансы</option>
-                    <option value="marketing">Маркетинг</option>
-                </select>
+            <div class="modal-body" id="modalBody">
+                <!-- динамическое содержимое -->
             </div>
-
-            <div id="form-feedback" class="form-feedback" style="display:none;"></div>
-
-            <button id="submit-btn" type="submit">Зарегистрироваться</button>
-        </form>
-
-        <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войдите здесь</a></p>
+            <div class="modal-footer">
+                <button class="cancel-btn" onclick="closeModal()">Отмена</button>
+                <button class="confirm-btn" onclick="confirmRegistration()">Подтвердить регистрацию</button>
+            </div>
+        </div>
     </div>
 
     <footer>
@@ -109,72 +251,178 @@
     </footer>
 
     <script>
-        (function() {
-            const form = document.getElementById('registration-form');
-            const submitBtn = document.getElementById('submit-btn');
-            const feedback = document.getElementById('form-feedback');
+        let currentEventId = null;
 
-            function showFeedback(message, isError = true) {
-                feedback.style.display = 'block';
-                feedback.textContent = message;
-                feedback.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
-                feedback.style.color = isError ? '#721c24' : '#155724';
-                feedback.style.border = isError ? '1px solid #f5c6cb' : '1px solid #c3e6cb';
-            }
-
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-
-                const username = document.getElementById('username').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirm-password').value;
-                const department = document.getElementById('department').value;
-
-                if (password !== confirmPassword) {
-                    showFeedback('Пароли не совпадают.', true);
-                    return;
-                }
-                if (!department) {
-                    showFeedback('Пожалуйста, выберите отдел.', true);
-                    return;
-                }
-
-                submitBtn.disabled = true;
-                showFeedback('Отправка данных...', false);
-
-                try {
-                    const resp = await fetch('/api/register/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        },
-                        body: JSON.stringify({
-                            username: username,
-                            email: email,
-                            password: password,
-                            department: department
-                        })
-                    });
-
-                    const data = await resp.json().catch(() => ({}));
-                    if (!resp.ok) {
-                        const msg = data.error || data.message || 'Ошибка регистрации. Попробуйте ещё раз.';
-                        throw new Error(msg);
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
                     }
+                }
+            }
+            return cookieValue;
+        }
 
-                    showFeedback('Регистрация прошла успешно!', false);
+        async function openEventModal(eventId) {
+            currentEventId = eventId;
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = '<p>Загрузка...</p>';
+            document.getElementById('eventModal').style.display = 'block';
+
+            try {
+                const response = await fetch(`/api/events/${eventId}/`);
+                if (!response.ok) throw new Error('Не удалось загрузить мероприятие');
+                const event = await response.json();
+
+                modalBody.innerHTML = `
+                    <div class="event-detail">
+                        <h4>О мероприятии</h4>
+                        <p><strong>Дата и время:</strong> ${new Date(event.date).toLocaleString()}</p>
+                        <p><strong>Место:</strong> ${event.location || 'Не указано'}</p>
+                        <p><strong>Описание:</strong> ${event.description || '—'}</p>
+                        ${event.prizes && event.prizes.length ? `<p><strong>Призы:</strong> ${event.prizes.map(p => p.prize_type + (p.points ? ' ('+p.points+' баллов)' : '')).join(', ')}</p>` : ''}
+                        <span class="event-points">Баллы: ${event.prizes && event.prizes[0] ? event.prizes[0].points : '—'}</span>
+                    </div>
+                    <div class="organizer-info">
+                        <h4>Об организаторе</h4>
+                        <p><strong>${event.organizer_name || event.organizer}</strong></p>
+                        <p>${event.organizer_description || 'Организатор не указал информацию'}</p>
+                        <div class="organizer-stats">
+                            <div class="organizer-stat">
+                                <div class="organizer-stat-value">${event.organizer_rating || '—'}</div>
+                                <div class="organizer-stat-label">Рейтинг</div>
+                                <div class="rating-stars">${event.organizer_rating ? '★'.repeat(Math.floor(event.organizer_rating)) : '☆'}</div>
+                            </div>
+                            <div class="organizer-stat">
+                                <div class="organizer-stat-value">${event.organizer_events_count || '—'}</div>
+                                <div class="organizer-stat-label">Мероприятий</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="successMessage" class="success-message"></div>
+                `;
+            } catch (err) {
+                modalBody.innerHTML = `<p>Ошибка загрузки: ${err.message}</p>`;
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('eventModal').style.display = 'none';
+            currentEventId = null;
+        }
+
+        async function confirmRegistration() {
+            if (!currentEventId) return;
+
+            const successMsg = document.getElementById('successMessage');
+            if (!successMsg) return;
+
+            try {
+                const token = localStorage.getItem('access_token');
+                if (!token) {
+                    successMsg.textContent = 'Вы не авторизованы. Пожалуйста, войдите.';
+                    successMsg.style.display = 'block';
                     setTimeout(() => {
                         window.location.href = '{% url "login" %}';
-                    }, 800);
-                } catch (err) {
-                    showFeedback(err.message || 'Не удалось выполнить регистрацию.', true);
-                } finally {
-                    submitBtn.disabled = false;
+                    }, 1500);
+                    return;
+                }
+
+                const response = await fetch('/api/event_participants/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        event: currentEventId,
+                        status: 'registered'
+                    })
+                });
+
+                if (response.ok) {
+                    successMsg.textContent = 'Вы успешно зарегистрированы на мероприятие!';
+                    successMsg.style.display = 'block';
+                    setTimeout(() => {
+                        closeModal();
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    const data = await response.json();
+                    successMsg.textContent = data.detail || 'Ошибка регистрации. Попробуйте позже.';
+                    successMsg.style.display = 'block';
+                }
+            } catch (err) {
+                successMsg.textContent = 'Ошибка сети. Попробуйте позже.';
+                successMsg.style.display = 'block';
+            }
+        }
+
+        let currentCategory = 'all';
+        let currentSearchTerm = '';
+
+        function filterEvents() {
+            const cards = document.querySelectorAll('#events .event-card');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const category = card.getAttribute('data-category') || 'other';
+                const title = card.querySelector('h4').textContent.toLowerCase();
+                const categoryMatch = currentCategory === 'all' || category === currentCategory;
+                const searchMatch = currentSearchTerm === '' || title.includes(currentSearchTerm);
+
+                if (categoryMatch && searchMatch) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
                 }
             });
-        })();
+
+            const eventsSection = document.getElementById('events');
+            let noResultsMsg = document.getElementById('no-results-message');
+            if (visibleCount === 0) {
+                if (!noResultsMsg) {
+                    noResultsMsg = document.createElement('div');
+                    noResultsMsg.id = 'no-results-message';
+                    noResultsMsg.className = 'no-results';
+                    noResultsMsg.innerHTML = 'По вашему запросу ничего не найдено.';
+                    eventsSection.appendChild(noResultsMsg);
+                }
+            } else {
+                if (noResultsMsg) noResultsMsg.remove();
+            }
+        }
+
+        document.getElementById('search-btn').addEventListener('click', () => {
+            currentSearchTerm = document.getElementById('event-search').value.toLowerCase();
+            filterEvents();
+        });
+        document.getElementById('event-search').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                currentSearchTerm = e.target.value.toLowerCase();
+                filterEvents();
+            }
+        });
+        document.querySelectorAll('.tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+                tag.classList.add('active');
+                currentCategory = tag.getAttribute('data-category');
+                filterEvents();
+            });
+        });
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('eventModal');
+            if (event.target === modal) closeModal();
+        };
     </script>
 </body>
 </html>

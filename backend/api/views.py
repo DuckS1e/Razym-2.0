@@ -1,8 +1,10 @@
-from django.shortcuts import render, get_object_or_404
+from rest_framework import viewsets, permissions
+from .models import Users, Events, Leaderboard, EventParticipants, Feedback
+from .serializers import UserSerializer, EventSerializer, LeaderboardSerializer
+from django.shortcuts import render
+from django.utils import timezone
+from django.db.models import Count, Sum
 from django.contrib.auth.decorators import login_required
-from .models import Events, Leaderboard, Users, EventParticipants, Feedback
-from django.db.models import Count, Sum, Q
-
 def home_page(request):
     """Главная страница: список предстоящих мероприятий"""
     from django.utils import timezone
@@ -70,3 +72,21 @@ def admin_panel_page(request):
         'total_organizers': total_organizers,
         'pending_organizers': pending_organizers,
     })
+
+class UserViewSet(viewsets.ModelViewSet):
+    """API для работы с пользователями"""
+    queryset = Users.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]  
+
+class EventViewSet(viewsets.ModelViewSet):
+    """API для мероприятий"""
+    queryset = Events.objects.all()
+    serializer_class = EventSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+class LeaderboardViewSet(viewsets.ReadOnlyModelViewSet):
+    """Только чтение для лидерборда"""
+    queryset = Leaderboard.objects.all().order_by('rank')[:100]
+    serializer_class = LeaderboardSerializer
+    permission_classes = [permissions.AllowAny]

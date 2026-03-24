@@ -1,131 +1,134 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Профиль - Мониторинг активности</title>
-    <link rel="stylesheet" href="../static/style.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="icon" href="data:,">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .profile-header { display: flex; align-items: center; gap: 30px; margin-bottom: 30px; }
+        .achievements-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .chart-container { background: white; padding: 20px; border-radius: 15px; }
+        .organizer-view { background: #f0f9ff; padding: 20px; border-radius: 15px; margin-bottom: 30px; }
+    </style>
 </head>
 <body>
     <header>
         <div class="header-content">
             <h1>Система мониторинга активности сотрудников</h1>
-            <div class="profile-icon" onclick="location.href='/profile/'">
-                <div class="avatar">АП</div>
+            <div class="profile-icon" onclick="location.href='{% url 'profile' %}'">
+                <div class="avatar">{{ user_profile.full_name|slice:":2" }}</div>
             </div>
         </div>
     </header>
 
     <nav>
-        <a href="/home/">Главная</a>
-        <a href="/leaderboard/">Рейтинг</a>
-        <a href="/public/">Организаторы</a>
+        <a href="{% url 'home' %}">Главная</a>
+        <a href="{% url 'leaderboard' %}">Рейтинг</a>
+        <a href="{% url 'organizers' %}">Организаторы</a>
     </nav>
 
     <div class="container">
         <h2>Мой профиль</h2>
 
         <div class="profile-header">
-            <div class="profile-avatar">
-                <div class="large-avatar">АП</div>
-            </div>
+            <div class="large-avatar">{{ user_profile.full_name|slice:":2" }}</div>
             <div class="profile-info">
-                <h3>Александр Петров</h3>
-                <p><strong>Отдел:</strong> IT-отдел</p>
-                <p><strong>Должность:</strong> Ведущий разработчик</p>
+                <h3>{{ user_profile.full_name }}</h3>
+                <p><strong>Отдел:</strong> {{ user_profile.department|default:"—" }}</p>
+                <p><strong>Должность:</strong> {{ user_profile.position|default:"—" }}</p>
+                <p><strong>Роль:</strong> {{ user_profile.get_role_display }}</p>
             </div>
         </div>
 
         <div id="profile">
-            <p><strong>Текущий рейтинг:</strong> <span id="current-rating">985</span></p>
-            <p><strong>Место в общем зачете:</strong> <span id="rank-position">1</span></p>
-            <p><strong>Прогноз попадания в кадровый резерв:</strong> <span id="reserve-projection">Высокий</span></p>
-            <p><strong>Количество мероприятий:</strong> <span id="events-count">12</span></p>
-            <p><strong>Дата последнего мероприятия:</strong> 10 апреля 2026</p>
+            <p><strong>Текущий рейтинг:</strong> <span id="current-rating">{{ leaderboard_entry.total_points|default:0 }}</span></p>
+            <p><strong>Место в общем зачете:</strong> <span id="rank-position">{{ leaderboard_entry.rank|default:"—" }}</span></p>
+            <p><strong>Прогноз попадания в кадровый резерв:</strong> <span id="reserve-projection">{{ user_profile.participant_profile.level|default:"Низкий" }}</span></p>
+            <p><strong>Количество мероприятий:</strong> <span id="events-count">{{ participations.count }}</span></p>
         </div>
+
+        {% if organizer_profile %}
+        <div class="organizer-view">
+            <h3>Панель организатора</h3>
+            <p>Проведено мероприятий: {{ organizer_profile.events_count }}</p>
+            <p>Рейтинг доверия: {{ organizer_profile.trust_rating|default:"Нет оценок" }}</p>
+            <p>Часто дарит:
+                {% for prize in organizer_profile.common_prizes %}
+                <span class="prize-tag">{{ prize }}</span>
+                {% empty %}—{% endfor %}
+            </p>
+            <button onclick="location.href='{% url 'admin_panel' %}'">Управление мероприятиями</button>
+        </div>
+        {% endif %}
 
         <section id="my-events">
             <h3>Мои мероприятия</h3>
-             <table>
+            <table>
                 <thead>
-                     <tr>
-                        <th>Название</th>
-                        <th>Дата</th>
-                        <th>Организатор</th>
-                        <th>Баллы</th>
-                     </tr>
+                    <tr><th>Название</th><th>Дата</th><th>Организатор</th><th>Баллы</th></tr>
                 </thead>
                 <tbody>
-                     <tr>
-                        <td>Хакатон по инновациям</td>
-                        <td>22 марта 2026</td>
-                        <td>IT-отдел</td>
-                        <td>100</td>
-                     </tr>
-                     <tr>
-                        <td>Технический семинар</td>
-                        <td>15 марта 2026</td>
-                        <td>IT-отдел</td>
-                        <td>75</td>
-                     </tr>
-                     <tr>
-                        <td>Корпоративный тренинг</td>
-                        <td>5 марта 2026</td>
-                        <td>Отдел развития</td>
-                        <td>50</td>
-                     </tr>
+                    {% for p in participations %}
+                    <tr>
+                        <td>{{ p.event.title }}</td>
+                        <td>{{ p.event.date|date:"d.m.Y H:i" }}</td>
+                        <td>{{ p.event.organizer.full_name }}</td>
+                        <td>{{ p.points_earned|default:0 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4">Вы ещё не участвовали в мероприятиях.</td></tr>
+                    {% endfor %}
                 </tbody>
-             </table>
+            </table>
+        </section>
+
+        <section id="achievements">
+            <h3>Портфолио достижений</h3>
+            <div class="achievements-grid">
+                <div class="achievement-item"><div class="achievement-icon">🏆</div><h4>Лучший участник</h4><p>Хакатон 2025</p></div>
+                <div class="achievement-item"><div class="achievement-icon">🏅</div><h4>Эксперт</h4><p>Технический семинар</p></div>
+                <div class="achievement-item"><div class="achievement-icon">🎖️</div><h4>Лидер</h4><p>Тренинг по лидерству</p></div>
+                <div class="achievement-item"><div class="achievement-icon">🌟</div><h4>Активный участник</h4><p>{{ participations.count }}+ мероприятий</p></div>
+            </div>
+        </section>
+
+        <section id="activity-chart-section">
+            <h3>График активности</h3>
+            <div class="chart-container">
+                <canvas id="activity-chart" width="400" height="150"></canvas>
+            </div>
         </section>
     </div>
-
-    <section id="achievements">
-        <h3>Портфолио достижений</h3>
-        <div class="achievements-grid">
-            <div class="achievement-item">
-                <div class="achievement-icon">🏆</div>
-                <h4>Лучший участник</h4>
-                <p>Хакатон по инновациям 2025</p>
-            </div>
-            <div class="achievement-item">
-                <div class="achievement-icon">🏅</div>
-                <h4>Эксперт</h4>
-                <p>Технический семинар 2025</p>
-            </div>
-            <div class="achievement-item">
-                <div class="achievement-icon">🎖️</div>
-                <h4>Лидер</h4>
-                <p>Тренинг по лидерству 2025</p>
-            </div>
-            <div class="achievement-item">
-                <div class="achievement-icon">🌟</div>
-                <h4>Активный участник</h4>
-                <p>10+ мероприятий</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="activity-chart-section">
-        <h3>График активности</h3>
-        <div class="chart-container">
-            <canvas id="activity-chart" width="400" height="150"></canvas>
-        </div>
-    </section>
-
-    <section id="admin-panel" style="display: none;">
-        <h2>Админ-панель</h2>
-        <div class="admin-controls">
-            <button onclick="createEvent()">Создать мероприятие</button>
-            <button onclick="manageUsers()">Управление пользователями</button>
-            <button onclick="viewReports()">Просмотр отчетов</button>
-        </div>
-    </section>
 
     <footer>
         <p>&copy; 2026 Система мониторинга активности сотрудников. Все права защищены.</p>
     </footer>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../static/scrypt.js"></script>
+
+    <script src="{% static 'js/scrypt.js' %}"></script>
+    <script>
+        if (typeof initActivityChart === 'function') initActivityChart();
+        else {
+            const ctx = document.getElementById('activity-chart')?.getContext('2d');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
+                        datasets: [{
+                            label: 'Количество мероприятий',
+                            data: [{% for p in participations|slice:":6" %}{{ p.points_earned|default:0 }},{% endfor %}],
+                            backgroundColor: 'rgba(52,152,219,0.2)',
+                            borderColor: 'rgba(52,152,219,1)',
+                            tension: 0.3
+                        }]
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 </html>

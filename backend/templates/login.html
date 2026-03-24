@@ -1,20 +1,22 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход в систему - Мониторинг активности</title>
-    <link rel="stylesheet" href="../static/style.css">
+    <title>Вход - Мониторинг активности</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .container { max-width: 500px; margin: 2rem auto; background: white; padding: 2rem; border-radius: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; }
+        .error { color: red; margin-top: 10px; }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Вход в систему</h1>
-    </header>
-    
-    <nav>
-        <a href="/home/">На главную</a>
-    </nav>
-
+    <header><h1>Вход в систему</h1></header>
     <div class="container">
         <h2>Войдите в свой аккаунт</h2>
         <form id="login-form">
@@ -22,28 +24,36 @@
                 <label for="username">Имя пользователя:</label>
                 <input type="text" id="username" name="username" required>
             </div>
-            
             <div class="form-group">
                 <label for="password">Пароль:</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            
-            <div class="form-group">
-                <input type="checkbox" id="remember" name="remember">
-                <label for="remember">Запомнить меня</label>
-            </div>
-            
             <button type="submit">Войти</button>
+            <div id="error-msg" class="error"></div>
         </form>
-        
-        <p>Нет аккаунта? <a href="/hello/">Зарегистрируйтесь здесь</a></p>
-        <p><a href="/reset-password/">Забыли пароль?</a></p>
+        <p>Нет аккаунта? <a href="{% url 'hello' %}">Зарегистрируйтесь здесь</a></p>
     </div>
+    <footer><p>&copy; 2026 Система мониторинга активности сотрудников.</p></footer>
 
-    <footer>
-        <p>&copy; 2026 Система мониторинга активности сотрудников. Все права защищены.</p>
-    </footer>
-
-    <script src="../static/scrypt.js"></script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const response = await fetch('/api/token/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                localStorage.setItem('access_token', data.access);
+                localStorage.setItem('refresh_token', data.refresh);
+                window.location.href = '{% url "home" %}';
+            } else {
+                document.getElementById('error-msg').innerText = data.detail || 'Ошибка входа';
+            }
+        });
+    </script>
 </body>
 </html>
