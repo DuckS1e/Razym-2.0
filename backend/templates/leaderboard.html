@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рейтинг - Мониторинг активности</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="icon" href="data:,">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Система мониторинга активности сотрудников</h1>
+            <div class="profile-icon" onclick="location.href='/profile/'">
+                <div class="avatar">АП</div>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <a href="/home/">Главная</a>
+        <a href="/leaderboard/">Рейтинг</a>
+        <a href="/public/">Организаторы</a>
+    </nav>
+
+    <div class="container">
+        <h2>Глобальная таблица лидеров</h2>
+        <p>Количество проведенных мероприятий: <strong>24</strong></p>
+        <p>Отображается топ 100 лидеров</p>
+
+        <div id="leaderboard">
+             <table>
+                <thead>
+                     <tr>
+                        <th>Место</th>
+                        <th>Сотрудник</th>
+                        <th>Отдел</th>
+                        <th>Рейтинг</th>
+                        <th>Мероприятия</th>
+                        <th>Прогноз в кадровый резерв</th>
+                     </tr>
+                </thead>
+                <tbody>
+                     <tr><td>1</td><td>Александр Петров</td><td>IT-отдел</td><td>985</td><td>12</td><td>Высокий</td></tr>
+                     <tr><td>2</td><td>Елена Сидорова</td><td>Маркетинг</td><td>942</td><td>10</td><td>Высокий</td></tr>
+                     <tr><td>3</td><td>Дмитрий Козлов</td><td>Финансы</td><td>895</td><td>8</td><td>Средний</td></tr>
+                     <tr><td>4</td><td>Ольга Морозова</td><td>HR</td><td>876</td><td>9</td><td>Средний</td></tr>
+                     <tr><td>5</td><td>Сергей Волков</td><td>IT-отдел</td><td>843</td><td>7</td><td>Средний</td></tr>
+                     <tr><td>6</td><td>Анна Смирнова</td><td>Продажи</td><td>821</td><td>9</td><td>Средний</td></tr>
+                     <tr><td>7</td><td>Павел Иванов</td><td>IT-отдел</td><td>798</td><td>8</td><td>Низкий</td></tr>
+                     <tr><td>8</td><td>Мария Козлова</td><td>Маркетинг</td><td>776</td><td>7</td><td>Низкий</td></tr>
+                     <tr><td>9</td><td>Алексей Петров</td><td>Финансы</td><td>754</td><td>6</td><td>Низкий</td></tr>
+                     <tr><td>10</td><td>Екатерина Сидорова</td><td>HR</td><td>732</td><td>5</td><td>Низкий</td></tr>
+                </tbody>
+             </table>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Система мониторинга активности сотрудников. Все права защищены.</p>
+    </footer>
+</body>
+</html>
