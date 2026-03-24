@@ -14,6 +14,8 @@ from .serializers import (
     CustomTokenObtainPairSerializer
 )
 from .permissions import IsAdminOrModerator
+from django.contrib.auth import login
+from rest_framework_simplejwt.tokens import AccessToken
 
 def home_page(request):
     upcoming_events = Events.objects.filter(status='published', date__gte=timezone.now()).order_by('date')
@@ -159,6 +161,21 @@ def reject_organizer(request, user_id):
     user = get_object_or_404(Users, id=user_id, role='organizer')
     user.delete()
     return Response({'detail': 'Rejected'})
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def session_login(request):
+    token = request.data.get('token')
+    if not token:
+        return Response({'error': 'Token required'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        access_token = AccessToken(token)
+        user_id = access_token['user_id']
+        user = Users.objects.get(id=user_id)
+        login(request, user)  # создаёт сессию
+        return Response({'status': 'ok'})
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = Users.objects.all()
