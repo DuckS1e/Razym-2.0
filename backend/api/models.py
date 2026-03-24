@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.hashers import check_password
 class Users(models.Model):
     email = models.CharField(unique=True, max_length=255)
     password_hash = models.CharField(max_length=255)
@@ -10,7 +10,11 @@ class Users(models.Model):
     is_approved = models.BooleanField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
-
+    
+    def check_password(self, raw_password):
+        """Проверяет, совпадает ли raw_password с хэшем в password_hash"""
+        return check_password(raw_password, self.password_hash)
+    
     class Meta:
         db_table = 'users'
 
