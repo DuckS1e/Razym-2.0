@@ -3,422 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Главная - Мониторинг активности</title>
+    <title>Регистрация - Мониторинг активности</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <link rel="icon" href="data:,">
     <style>
-        /* Стили для модального окна */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s ease;
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 0;
-            width: 90%;
-            max-width: 500px;
-            border-radius: 15px;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.3);
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px 15px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            font-size: 1.3rem;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 28px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .close-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .modal-body {
-            padding: 20px;
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        .event-detail {
-            margin-bottom: 20px;
-        }
-
-        .event-detail h4 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-        }
-
-        .event-detail p {
-            margin: 8px 0;
-            color: #555;
-            line-height: 1.5;
-        }
-
-        .event-detail strong {
-            color: #333;
-        }
-
-        .organizer-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-        }
-
-        .organizer-info h4 {
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .organizer-stats {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .organizer-stat {
-            text-align: center;
-            flex: 1;
-        }
-
-        .organizer-stat-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .organizer-stat-label {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .rating-stars {
-            color: #ffc107;
-            margin-top: 5px;
-        }
-
-        .modal-footer {
-            padding: 20px;
-            border-top: 1px solid #eee;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .confirm-btn {
-            padding: 10px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .confirm-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .cancel-btn {
-            padding: 10px 20px;
-            background: #f0f0f0;
-            color: #666;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .cancel-btn:hover {
-            background: #e0e0e0;
-        }
-
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 12px;
-            border-radius: 5px;
-            margin-top: 10px;
-            display: none;
-        }
-
-        .event-points {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        /* Стили для облака тегов */
-        .tags-cloud {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .tags-cloud h3 {
+        .form-group {
             margin-bottom: 15px;
-            color: #333;
-            font-size: 1.2rem;
         }
-
-        .tags-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .tag {
-            display: inline-block;
-            padding: 8px 20px;
-            background: #f0f0f0;
-            color: #666;
-            border-radius: 25px;
-            font-size: 0.9rem;
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
             font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
         }
-
-        .tag:hover {
-            transform: translateY(-2px);
-            background: #e0e0e0;
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
         }
-
-        .tag.active {
+        button {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-        }
-
-        .clear-filter {
-            display: inline-block;
-            padding: 8px 20px;
-            background: #ff6b6b;
-            color: white;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 500;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-left: 10px;
+            font-size: 16px;
         }
-
-        .clear-filter:hover {
-            transform: translateY(-2px);
-            background: #ff5252;
+        .form-feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
         }
-
-        .event-category-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            margin-top: 8px;
+        .container {
+            max-width: 500px;
+            margin: 2rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         }
-
-        .no-results {
+        footer {
+            margin-top: 2rem;
             text-align: center;
-            padding: 40px;
-            color: #999;
-            font-size: 1.1rem;
+        }
+        header h1 {
+            text-align: center;
+            margin: 1rem 0;
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="header-content">
-            <h1>Система мониторинга активности сотрудников</h1>
-            <div class="profile-icon" onclick="location.href='{% url 'profile' %}'">
-                <div class="avatar">АП</div>
-            </div>
-        </div>
+        <h1>Регистрация нового пользователя</h1>
     </header>
 
-    <nav>
-        <a href="{% url 'home' %}">Главная</a>
-        <a href="{% url 'leaderboard' %}">Рейтинг</a>
-        <a href="{% url 'public' %}">Организаторы</a>
-    </nav>
-
     <div class="container">
-        <h2>Главная страница</h2>
-
-        <div class="search-section">
-            <input type="text" id="event-search" placeholder="Поиск мероприятий...">
-            <button id="search-btn">Найти</button>
-        </div>
-
-        <!-- Облако тегов направлений -->
-        <div class="tags-cloud">
-            <h3>Фильтр по направлениям</h3>
-            <div class="tags-container" id="tags-container">
-                <span class="tag active" data-category="all">Все мероприятия</span>
-                <span class="tag" data-category="IT">IT и технологии</span>
-                <span class="tag" data-category="leadership">Лидерство и управление</span>
-                <span class="tag" data-category="professional">Профессиональное развитие</span>
-                <span class="tag" data-category="team">Командообразование</span>
-                <span class="tag" data-category="hr">HR</span>
-                <span class="tag" data-category="security">Кибербезопасность</span>
-            </div>
-        </div>
-
-        <section id="events">
-            <h3>Доступные мероприятия</h3>
-
-            <div class="event-card" data-event-id="1" data-category="leadership">
-                <h4>Корпоративный тренинг по лидерству</h4>
-                <p><strong>Дата:</strong> 15 апреля 2026</p>
-                <p><strong>Время:</strong> 14:00 - 18:00</p>
-                <p><strong>Место:</strong> Конференц-зал, 3 этаж</p>
-                <p><strong>Организатор:</strong> Отдел развития персонала</p>
-                <p><strong>Баллы:</strong> 50</p>
-                <span class="event-category-badge">Лидерство и управление</span>
-                <button class="register-btn" onclick="openModal('train_leadership')">Зарегистрироваться</button>
+        <h2>Создайте аккаунт</h2>
+        <form id="registration-form" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Имя пользователя:</label>
+                <input type="text" id="username" name="username" required>
             </div>
 
-            <div class="event-card" data-event-id="2" data-category="IT">
-                <h4>Хакатон по инновациям</h4>
-                <p><strong>Дата:</strong> 22 апреля 2026</p>
-                <p><strong>Время:</strong> 10:00 - 18:00</p>
-                <p><strong>Место:</strong> Технопарк, зал А</p>
-                <p><strong>Организатор:</strong> IT-отдел</p>
-                <p><strong>Баллы:</strong> 100</p>
-                <span class="event-category-badge">IT и технологии</span>
-                <button class="register-btn" onclick="openModal('hackathon')">Зарегистрироваться</button>
+            <div class="form-group">
+                <label for="email">Электронная почта:</label>
+                <input type="email" id="email" name="email" required>
             </div>
 
-            <div class="event-card" data-event-id="3" data-category="security">
-                <h4>Вебинар по кибербезопасности</h4>
-                <p><strong>Дата:</strong> 25 апреля 2026</p>
-                <p><strong>Время:</strong> 11:00 - 13:00</p>
-                <p><strong>Место:</strong> Online (Zoom)</p>
-                <p><strong>Организатор:</strong> ИТ-безопасность</p>
-                <p><strong>Баллы:</strong> 30</p>
-                <span class="event-category-badge">Кибербезопасность</span>
-                <button class="register-btn" onclick="openModal('cybersecurity')">Зарегистрироваться</button>
+            <div class="form-group">
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
             </div>
 
-            <div class="event-card" data-event-id="4" data-category="professional">
-                <h4>Мастер-класс по Agile и Scrum</h4>
-                <p><strong>Дата:</strong> 28 апреля 2026</p>
-                <p><strong>Время:</strong> 15:00 - 18:00</p>
-                <p><strong>Место:</strong> Бизнес-центр, зал B</p>
-                <p><strong>Организатор:</strong> Проектный офис</p>
-                <p><strong>Баллы:</strong> 60</p>
-                <span class="event-category-badge">Профессиональное развитие</span>
-                <button class="register-btn" onclick="openModal('agile')">Зарегистрироваться</button>
+            <div class="form-group">
+                <label for="confirm-password">Подтвердите пароль:</label>
+                <input type="password" id="confirm-password" name="confirm-password" required>
             </div>
 
-            <div class="event-card" data-event-id="5" data-category="team">
-                <h4>Тимбилдинг "Веревочный курс"</h4>
-                <p><strong>Дата:</strong> 2 мая 2026</p>
-                <p><strong>Время:</strong> 10:00 - 17:00</p>
-                <p><strong>Место:</strong> Парк "Сокольники"</p>
-                <p><strong>Организатор:</strong> HR-отдел</p>
-                <p><strong>Баллы:</strong> 40</p>
-                <span class="event-category-badge">Командообразование</span>
-                <button class="register-btn" onclick="openModal('teambuilding')">Зарегистрироваться</button>
+            <div class="form-group">
+                <label for="department">Отдел:</label>
+                <select id="department" name="department" required>
+                    <option value="">Выберите отдел</option>
+                    <option value="it">IT-отдел</option>
+                    <option value="sales">Продажи</option>
+                    <option value="hr">HR</option>
+                    <option value="finance">Финансы</option>
+                    <option value="marketing">Маркетинг</option>
+                </select>
             </div>
 
-            <div class="event-card" data-event-id="6" data-category="hr">
-                <h4>Семинар по управлению персоналом</h4>
-                <p><strong>Дата:</strong> 5 мая 2026</p>
-                <p><strong>Время:</strong> 11:00 - 14:00</p>
-                <p><strong>Место:</strong> Конференц-зал, 2 этаж</p>
-                <p><strong>Организатор:</strong> HR-отдел</p>
-                <p><strong>Баллы:</strong> 45</p>
-                <span class="event-category-badge">HR</span>
-                <button class="register-btn" onclick="openModal('hr_seminar')">Зарегистрироваться</button>
-            </div>
-        </section>
+            <div id="form-feedback" class="form-feedback" style="display:none;"></div>
 
-        <section id="recent-events">
-            <h3>Последние завершенные мероприятия</h3>
-            <div class="event-card">
-                <h4>Вебинар по кибербезопасности</h4>
-                <p><strong>Дата:</strong> 20 марта 2026</p>
-                <p><strong>Организатор:</strong> ИТ-безопасность</p>
-                <p><strong>Статус:</strong> Завершено</p>
-            </div>
-            <div class="event-card">
-                <h4>Тренинг по коммуникации</h4>
-                <p><strong>Дата:</strong> 18 марта 2026</p>
-                <p><strong>Организатор:</strong> HR-отдел</p>
-                <p><strong>Статус:</strong> Завершено</p>
-            </div>
-            <div class="event-card">
-                <h4>Хакатон по AI</h4>
-                <p><strong>Дата:</strong> 15 марта 2026</p>
-                <p><strong>Организатор:</strong> R&D</p>
-                <p><strong>Статус:</strong> Завершено</p>
-            </div>
-        </section>
-    </div>
+            <button id="submit-btn" type="submit">Зарегистрироваться</button>
+        </form>
 
-    <!-- Модальное окно -->
-    <div id="eventModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Регистрация на мероприятие</h3>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body" id="modalBody">
-                <!-- Контент будет заполняться динамически -->
-            </div>
-            <div class="modal-footer">
-                <button class="cancel-btn" onclick="closeModal()">Отмена</button>
-                <button class="confirm-btn" onclick="confirmRegistration()">Подтвердить регистрацию</button>
-            </div>
-        </div>
+        <p>Уже есть аккаунт? <a href="{% url 'login' %}">Войдите здесь</a></p>
     </div>
 
     <footer>
@@ -426,294 +109,72 @@
     </footer>
 
     <script>
+        (function() {
+            const form = document.getElementById('registration-form');
+            const submitBtn = document.getElementById('submit-btn');
+            const feedback = document.getElementById('form-feedback');
 
-        const eventsData = {
-            train_leadership: {
-                title: "Корпоративный тренинг по лидерству",
-                description: "Тренинг направлен на развитие лидерских качеств, навыков управления командой и принятия решений. Участники узнают о современных подходах к лидерству и получат практические инструменты для эффективного управления.",
-                date: "15 апреля 2026",
-                time: "14:00 - 18:00",
-                location: "Конференц-зал, 3 этаж",
-                organizer: {
-                    name: "Отдел развития персонала",
-                    rating: 4.9,
-                    events_count: 12,
-                    participants: 289,
-                    description: "Профессиональная команда HR-специалистов, занимающихся развитием сотрудников и созданием комфортной рабочей среды."
-                },
-                points: 50,
-                agenda: "• Введение в лидерство\n• Стили управления\n• Принятие решений\n• Практические кейсы\n• Обратная связь",
-                requirements: "Открытость к новому, желание развиваться"
-            },
-            hackathon: {
-                title: "Хакатон по инновациям",
-                description: "Командное соревнование, где участники за 8 часов разработают инновационные решения для бизнес-задач. Победители получат ценные призы и возможность реализовать свой проект.",
-                date: "22 апреля 2026",
-                time: "10:00 - 18:00",
-                location: "Технопарк, зал А",
-                organizer: {
-                    name: "IT-отдел",
-                    rating: 4.8,
-                    events_count: 15,
-                    participants: 342,
-                    description: "Команда разработчиков и инноваторов, организующая технологические мероприятия и хакатоны."
-                },
-                points: 100,
-                agenda: "• Открытие и регистрация\n• Брифинг\n• Работа над проектами\n• Презентации\n• Награждение",
-                requirements: "Навыки программирования, командная работа, ноутбук"
-            },
-            cybersecurity: {
-                title: "Вебинар по кибербезопасности",
-                description: "Образовательный вебинар о современных угрозах информационной безопасности и способах защиты. Эксперты поделятся практическими советами по защите данных.",
-                date: "25 апреля 2026",
-                time: "11:00 - 13:00",
-                location: "Online (Zoom)",
-                organizer: {
-                    name: "ИТ-безопасность",
-                    rating: 4.7,
-                    events_count: 8,
-                    participants: 156,
-                    description: "Специалисты по информационной безопасности, обучающие сотрудников основам кибергигиены."
-                },
-                points: 30,
-                agenda: "• Основы кибербезопасности\n• Социальная инженерия\n• Защита персональных данных\n• Ответы на вопросы",
-                requirements: "Стабильный интернет, камера, микрофон"
-            },
-            agile: {
-                title: "Мастер-класс по Agile и Scrum",
-                description: "Практический мастер-класс по гибким методологиям разработки. Участники узнают о принципах Agile, ролях в Scrum, спринтах и получат опыт работы в команде.",
-                date: "28 апреля 2026",
-                time: "15:00 - 18:00",
-                location: "Бизнес-центр, зал B",
-                organizer: {
-                    name: "Проектный офис",
-                    rating: 4.6,
-                    events_count: 10,
-                    participants: 210,
-                    description: "Команда проектных менеджеров, внедряющих гибкие методологии в компании."
-                },
-                points: 60,
-                agenda: "• Введение в Agile\n• Scrum framework\n• Роли и артефакты\n• Практическая сессия\n• Q&A",
-                requirements: "Желание освоить Agile методологии"
-            },
-            teambuilding: {
-                title: "Тимбилдинг 'Веревочный курс'",
-                description: "Активный командный тренинг на природе, направленный на укрепление командного духа, развитие доверия и коммуникации в коллективе.",
-                date: "2 мая 2026",
-                time: "10:00 - 17:00",
-                location: "Парк 'Сокольники'",
-                organizer: {
-                    name: "HR-отдел",
-                    rating: 4.9,
-                    events_count: 12,
-                    participants: 289,
-                    description: "Профессиональная команда HR-специалистов, занимающихся развитием сотрудников."
-                },
-                points: 40,
-                agenda: "• Сбор и инструктаж\n• Командные задания\n• Обед\n• Веревочный курс\n• Подведение итогов",
-                requirements: "Спортивная одежда, хорошее настроение"
-            },
-            hr_seminar: {
-                title: "Семинар по управлению персоналом",
-                description: "Семинар для руководителей и HR-специалистов по современным подходам к управлению персоналом, мотивации и удержанию сотрудников.",
-                date: "5 мая 2026",
-                time: "11:00 - 14:00",
-                location: "Конференц-зал, 2 этаж",
-                organizer: {
-                    name: "HR-отдел",
-                    rating: 4.9,
-                    events_count: 12,
-                    participants: 289,
-                    description: "Профессиональная команда HR-специалистов, занимающихся развитием сотрудников."
-                },
-                points: 45,
-                agenda: "• Современные подходы к управлению\n• Мотивация персонала\n• Удержание талантов\n• Кейсы и обсуждение",
-                requirements: "Руководящая должность или интерес к HR"
+            function showFeedback(message, isError = true) {
+                feedback.style.display = 'block';
+                feedback.textContent = message;
+                feedback.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
+                feedback.style.color = isError ? '#721c24' : '#155724';
+                feedback.style.border = isError ? '1px solid #f5c6cb' : '1px solid #c3e6cb';
             }
-        };
 
-        let currentEvent = null;
-        let currentCategory = 'all';
-        let currentSearchTerm = '';
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
 
-        function openModal(eventId) {
-            currentEvent = eventsData[eventId];
-            if (!currentEvent) return;
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                const department = document.getElementById('department').value;
 
-            const modalBody = document.getElementById('modalBody');
-
-            modalBody.innerHTML = `
-                <div class="event-detail">
-                    <h4>О мероприятии</h4>
-                    <p><strong>Дата и время:</strong> ${currentEvent.date}, ${currentEvent.time}</p>
-                    <p><strong>Место проведения:</strong> ${currentEvent.location}</p>
-                    <p><strong>Описание:</strong> ${currentEvent.description}</p>
-                    <p><strong>Программа:</strong><br>${currentEvent.agenda.replace(/\n/g, '<br>')}</p>
-                    <p><strong>Требования:</strong> ${currentEvent.requirements}</p>
-                    <span class="event-points">Баллы: ${currentEvent.points}</span>
-                </div>
-
-                <div class="organizer-info">
-                    <h4>Об организаторе</h4>
-                    <p><strong>${currentEvent.organizer.name}</strong></p>
-                    <p>${currentEvent.organizer.description}</p>
-                    <div class="organizer-stats">
-                        <div class="organizer-stat">
-                            <div class="organizer-stat-value">${currentEvent.organizer.rating}</div>
-                            <div class="organizer-stat-label">Рейтинг</div>
-                            <div class="rating-stars">${'★'.repeat(Math.floor(currentEvent.organizer.rating))}${'☆'.repeat(5-Math.floor(currentEvent.organizer.rating))}</div>
-                        </div>
-                        <div class="organizer-stat">
-                            <div class="organizer-stat-value">${currentEvent.organizer.events_count}</div>
-                            <div class="organizer-stat-label">Мероприятий</div>
-                        </div>
-                        <div class="organizer-stat">
-                            <div class="organizer-stat-value">${currentEvent.organizer.participants}</div>
-                            <div class="organizer-stat-label">Участников</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="successMessage" class="success-message">
-                    Вы успешно зарегистрированы на мероприятие!
-                </div>
-            `;
-
-            document.getElementById('eventModal').style.display = 'block';
-        }
-
-        function closeModal() {
-            document.getElementById('eventModal').style.display = 'none';
-            currentEvent = null;
-        }
-
-        function confirmRegistration() {
-            if (!currentEvent) return;
-
-            const successMsg = document.getElementById('successMessage');
-            if (successMsg) {
-                successMsg.style.display = 'block';
-                setTimeout(() => {
-                    closeModal();
-                    showNotification(`Вы успешно зарегистрированы на "${currentEvent.title}"!`);
-                }, 2000);
-            } else {
-                closeModal();
-                showNotification(`Вы успешно зарегистрированы на "${currentEvent.title}"!`);
-            }
-        }
-
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 15px 25px;
-                border-radius: 10px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-                z-index: 1001;
-                animation: slideInRight 0.3s ease;
-                font-weight: 500;
-            `;
-            notification.innerHTML = message;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.animation = 'fadeOut 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
-
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
+                if (password !== confirmPassword) {
+                    showFeedback('Пароли не совпадают.', true);
+                    return;
                 }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
+                if (!department) {
+                    showFeedback('Пожалуйста, выберите отдел.', true);
+                    return;
                 }
-            }
-            @keyframes fadeOut {
-                from {
-                    opacity: 1;
-                }
-                to {
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
 
-        function filterEvents() {
-            const cards = document.querySelectorAll('#events .event-card');
-            let visibleCount = 0;
+                submitBtn.disabled = true;
+                showFeedback('Отправка данных...', false);
 
-            cards.forEach(card => {
-                const category = card.getAttribute('data-category');
-                const title = card.querySelector('h4').textContent.toLowerCase();
-                const categoryMatch = currentCategory === 'all' || category === currentCategory;
-                const searchMatch = currentSearchTerm === '' || title.includes(currentSearchTerm);
+                try {
+                    const resp = await fetch('/api/register/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify({
+                            username: username,
+                            email: email,
+                            password: password,
+                            department: department
+                        })
+                    });
 
-                if (categoryMatch && searchMatch) {
-                    card.style.display = 'block';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
+                    const data = await resp.json().catch(() => ({}));
+                    if (!resp.ok) {
+                        const msg = data.error || data.message || 'Ошибка регистрации. Попробуйте ещё раз.';
+                        throw new Error(msg);
+                    }
+
+                    showFeedback('Регистрация прошла успешно!', false);
+                    setTimeout(() => {
+                        window.location.href = '{% url "login" %}';
+                    }, 800);
+                } catch (err) {
+                    showFeedback(err.message || 'Не удалось выполнить регистрацию.', true);
+                } finally {
+                    submitBtn.disabled = false;
                 }
             });
-
-            const eventsSection = document.getElementById('events');
-            let noResultsMsg = document.getElementById('no-results-message');
-
-            if (visibleCount === 0) {
-                if (!noResultsMsg) {
-                    noResultsMsg = document.createElement('div');
-                    noResultsMsg.id = 'no-results-message';
-                    noResultsMsg.className = 'no-results';
-                    noResultsMsg.innerHTML = 'По вашему запросу ничего не найдено.<br>Попробуйте изменить фильтр или поисковый запрос.';
-                    eventsSection.appendChild(noResultsMsg);
-                }
-            } else {
-                if (noResultsMsg) {
-                    noResultsMsg.remove();
-                }
-            }
-        }
-
-        document.getElementById('search-btn').addEventListener('click', function() {
-            currentSearchTerm = document.getElementById('event-search').value.toLowerCase();
-            filterEvents();
-        });
-
-        document.getElementById('event-search').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                currentSearchTerm = this.value.toLowerCase();
-                filterEvents();
-            }
-        });
-
-        const tags = document.querySelectorAll('.tag');
-        tags.forEach(tag => {
-            tag.addEventListener('click', function() {
-                tags.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                currentCategory = this.getAttribute('data-category');
-                filterEvents();
-            });
-        });
-
-        window.onclick = function(event) {
-            const modal = document.getElementById('eventModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
+        })();
     </script>
 </body>
 </html>

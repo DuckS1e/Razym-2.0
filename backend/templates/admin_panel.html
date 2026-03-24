@@ -6,6 +6,7 @@
     <title>Админ-панель - Мониторинг активности</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'style.css' %}">
+    <script src="{% static 'js/scrypt.js' %}"></script>
     <link rel="icon" href="data:,">
     <style>
         .admin-stats {
@@ -306,7 +307,7 @@
                         <option value="draft">Черновик</option>
                     </select>
                 </div>
-                <button type="submit">📅 Создать мероприятие</button>
+                <button type="submit">Создать мероприятие</button>
             </form>
         </div>
 
@@ -331,8 +332,8 @@
                             <td>12.04.2026</td>
                             <td><span class="badge badge-warning">На проверке</span></td>
                             <td class="action-buttons">
-                                <button class="approve">✅ Одобрить</button>
-                                <button class="reject">❌ Отклонить</button>
+                                <button class="approve">Одобрить</button>
+                                <button class="reject">Отклонить</button>
                             </td>
                         </tr>
                         <tr>
@@ -341,8 +342,8 @@
                             <td>10.04.2026</td>
                             <td><span class="badge badge-warning">На проверке</span></td>
                             <td class="action-buttons">
-                                <button class="approve">✅ Одобрить</button>
-                                <button class="reject">❌ Отклонить</button>
+                                <button class="approve">Одобрить</button>
+                                <button class="reject">Отклонить</button>
                             </td>
                         </tr>
                         <tr>
@@ -351,8 +352,8 @@
                             <td>08.04.2026</td>
                             <td><span class="badge badge-warning">На проверке</span></td>
                             <td class="action-buttons">
-                                <button class="approve">✅ Одобрить</button>
-                                <button class="reject">❌ Отклонить</button>
+                                <button class="approve">Одобрить</button>
+                                <button class="reject">Отклонить</button>
                             </td>
                         </tr>
                     </tbody>
@@ -362,43 +363,43 @@
 
         <!-- Настройка весов баллов -->
         <div class="admin-form">
-            <h3>⚙️ Настройка весов баллов</h3>
+            <h3>Настройка весов баллов</h3>
             <form id="weights-form">
                 <div class="weight-item">
-                    <label>💻 IT и технологии:</label>
+                    <label>IT и технологии:</label>
                     <input type="number" value="100" min="1" id="weight-it">
                 </div>
                 <div class="weight-item">
-                    <label>👔 Лидерство и управление:</label>
+                    <label>Лидерство и управление:</label>
                     <input type="number" value="80" min="1" id="weight-leadership">
                 </div>
                 <div class="weight-item">
-                    <label>📚 Профессиональное развитие:</label>
+                    <label>Профессиональное развитие:</label>
                     <input type="number" value="70" min="1" id="weight-professional">
                 </div>
                 <div class="weight-item">
-                    <label>🎯 Командообразование:</label>
+                    <label>Командообразование:</label>
                     <input type="number" value="60" min="1" id="weight-team">
                 </div>
                 <div class="weight-item">
-                    <label>🤝 HR:</label>
+                    <label>HR:</label>
                     <input type="number" value="50" min="1" id="weight-hr">
                 </div>
-                <button type="submit">💾 Сохранить настройки</button>
+                <button type="submit">Сохранить настройки</button>
             </form>
         </div>
 
         <!-- Отчеты для кадровой службы -->
         <div class="admin-form">
-            <h3>📊 Отчеты для кадровой службы</h3>
+            <h3>Отчеты для кадровой службы</h3>
             <p style="color: #666; margin-bottom: 15px;">Расширенные фильтры: возраст, город, количество мероприятий, средний балл</p>
             <div class="filter-group">
                 <input type="text" id="filter-city" placeholder="Город">
                 <input type="number" id="filter-age" placeholder="Мин. возраст">
                 <input type="number" id="filter-events" placeholder="Мин. кол-во мероприятий">
                 <input type="number" id="filter-score" placeholder="Мин. средний балл" step="0.1">
-                <button id="apply-filters">🔍 Применить фильтры</button>
-                <button id="reset-filters">🔄 Сбросить</button>
+                <button id="apply-filters">Применить фильтры</button>
+                <button id="reset-filters">Сбросить</button>
             </div>
 
             <div style="overflow-x: auto;">
@@ -420,7 +421,7 @@
                             <td>32</td>
                             <td>12</td>
                             <td>98.5</td>
-                            <td><button class="download-report">📄 Скачать PDF</button></td>
+                            <td><button class="download-report">Скачать PDF</button></td>
                         </tr>
                         <tr data-city="Санкт-Петербург" data-age="29" data-events="10" data-score="94.2">
                             <td><strong>Елена Сидорова</strong></td>
@@ -428,7 +429,7 @@
                             <td>29</td>
                             <td>10</td>
                             <td>94.2</td>
-                            <td><button class="download-report">📄 Скачать PDF</button></td>
+                            <td><button class="download-report">Скачать PDF</button></td>
                         </tr>
                         <tr data-city="Москва" data-age="35" data-events="8" data-score="87.5">
                             <td><strong>Дмитрий Козлов</strong></td>
@@ -436,7 +437,7 @@
                             <td>35</td>
                             <td>8</td>
                             <td>87.5</td>
-                            <td><button class="download-report">📄 Скачать PDF</button></td>
+                            <td><button class="download-report">Скачать PDF</button></td>
                         </tr>
                         <tr data-city="Казань" data-age="27" data-events="9" data-score="91.3">
                             <td><strong>Ольга Морозова</strong></td>
@@ -444,7 +445,7 @@
                             <td>27</td>
                             <td>9</td>
                             <td>91.3</td>
-                            <td><button class="download-report">📄 Скачать PDF</button></td>
+                            <td><button class="download-report">Скачать PDF</button></td>
                         </tr>
                         <tr data-city="Новосибирск" data-age="31" data-events="7" data-score="84.8">
                             <td><strong>Сергей Волков</strong></td>
@@ -452,15 +453,15 @@
                             <td>31</td>
                             <td>7</td>
                             <td>84.8</td>
-                            <td><button class="download-report">📄 Скачать PDF</button></td>
+                            <td><button class="download-report">Скачать PDF</button></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
             <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button id="export-excel" style="background: #28a745;">📊 Экспорт в Excel</button>
-                <button id="export-pdf" style="background: #dc3545;">📑 Экспорт в PDF</button>
+                <button id="export-excel" style="background: #28a745;"> Экспорт в Excel</button>
+                <button id="export-pdf" style="background: #dc3545;"> Экспорт в PDF</button>
             </div>
         </div>
     </div>
@@ -483,7 +484,7 @@
                 status: document.getElementById('event-status').value
             };
             console.log('Новое мероприятие:', eventData);
-            alert('✅ Мероприятие успешно создано!');
+            alert('Мероприятие успешно создано!');
             this.reset();
         });
 
@@ -497,7 +498,7 @@
                     row.querySelector('.badge').style.color = '#155724';
                     this.remove();
                     this.nextSibling.remove();
-                    alert('✅ Организатор одобрен!');
+                    alert('Организатор одобрен!');
                 }
             });
         });
@@ -507,7 +508,7 @@
                 if (confirm('Отклонить этого организатора?')) {
                     const row = this.closest('tr');
                     row.remove();
-                    alert('❌ Организатор отклонен!');
+                    alert('Организатор отклонен!');
                 }
             });
         });
@@ -522,7 +523,7 @@
                 hr: document.getElementById('weight-hr').value
             };
             console.log('Настройки весов:', weights);
-            alert('✅ Настройки весов успешно сохранены!');
+            alert('Настройки весов успешно сохранены!');
         });
 
         function filterTable() {
@@ -559,16 +560,16 @@
             btn.addEventListener('click', function() {
                 const row = this.closest('tr');
                 const employeeName = row.cells[0].textContent;
-                alert(`📄 Формируется PDF-отчет для сотрудника: ${employeeName}`);
+                alert(`Формируется PDF-отчет для сотрудника: ${employeeName}`);
             });
         });
 
         document.getElementById('export-excel')?.addEventListener('click', function() {
-            alert('📊 Экспорт в Excel будет доступен в следующей версии');
+            alert('Экспорт в Excel будет доступен в следующей версии');
         });
 
         document.getElementById('export-pdf')?.addEventListener('click', function() {
-            alert('📑 Экспорт в PDF будет доступен в следующей версии');
+            alert('Экспорт в PDF будет доступен в следующей версии');
         });
     </script>
 </body>
